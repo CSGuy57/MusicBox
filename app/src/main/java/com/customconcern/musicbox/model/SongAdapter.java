@@ -59,9 +59,9 @@ public class SongAdapter extends android.widget.BaseAdapter {
         LinearLayout songLay = (LinearLayout)songInf.inflate
                 (R.layout.song, parent, false);
         if (currentSong == position) {
-            songLay.setBackgroundColor(getResources().getColor(R.color.playing));
+            // songLay.setBackgroundColor(getResources().getColor(R.color.playing));
         }
-        
+
         //get title and artist views
         TextView songView = (TextView)songLay.findViewById(R.id.song_title);
         TextView artistView = (TextView)songLay.findViewById(R.id.song_artist);

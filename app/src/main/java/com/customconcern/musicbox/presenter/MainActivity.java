@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     private ShakeDetector mShakeDetector;
     private int currentSong;
     private SongAdapter songAdt;
+    private boolean shuffleStatus;
     // endregion
 
 
@@ -134,6 +135,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
+
         //menu item selected
         switch (item.getItemId()) {
             //case R.id.action_musicbox:
@@ -141,7 +144,15 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
             case R.id.action_shuffle:
                 musicSrv.setShuffle();
-                break;
+                if (shuffleStatus) {
+                    item.setIcon(getResources().getDrawable(R.drawable.shuffle));
+                    shuffleStatus = false;
+                    return shuffleStatus;
+                } else {
+                    item.setIcon(getResources().getDrawable(R.drawable.shuffle_on));
+                    shuffleStatus = true;
+                    return shuffleStatus;
+                }
             case R.id.action_end:
                 stopService(playIntent);
                 musicSrv=null;
@@ -360,6 +371,3 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
     // endregion
 }
-
-//if position == current position
-//set background color to this
