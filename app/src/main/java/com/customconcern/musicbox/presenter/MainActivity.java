@@ -20,11 +20,8 @@ import android.widget.ListView;
 import android.widget.MediaController.MediaPlayerControl;
 
 import com.customconcern.musicbox.R;
-import com.customconcern.musicbox.model.MusicService;
-import com.customconcern.musicbox.model.MusicService.MusicBinder;
-import com.customconcern.musicbox.model.ShakeDetector;
+import com.customconcern.musicbox.presenter.MusicService.MusicBinder;
 import com.customconcern.musicbox.model.Song;
-import com.customconcern.musicbox.model.SongAdapter;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,8 +41,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
     private ShakeDetector mShakeDetector;
-    private View previousSong;
-
+    private SongAdapter songAdt;
+    private boolean shuffleStatus;
     // endregion
 
 
@@ -72,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             }
         });
 
-        SongAdapter songAdt = new SongAdapter(this, songList);
+        songAdt = new SongAdapter(this, songList);
         songView.setAdapter(songAdt);
 
         this.setController();
@@ -133,14 +130,24 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
+
         //menu item selected
         switch (item.getItemId()) {
-            //case R.id.action_musicbox:
+            //case R.id.action_video:
                 //TODO: launch new animated activity here
 
             case R.id.action_shuffle:
                 musicSrv.setShuffle();
-                break;
+                if (shuffleStatus) {
+                    item.setIcon(getResources().getDrawable(R.drawable.shuffle));
+                    shuffleStatus = false;
+                    return shuffleStatus;
+                } else {
+                    item.setIcon(getResources().getDrawable(R.drawable.shuffle_on));
+                    shuffleStatus = true;
+                    return shuffleStatus;
+                }
             case R.id.action_end:
                 stopService(playIntent);
                 musicSrv=null;
@@ -269,20 +276,14 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
     private void playNext(){
         musicSrv.playNext();
-        if(playbackPaused){
-            setController();
-            playbackPaused = false;
-        }
-        controller.show(0);
+
+        this.resetService();
     }
 
     private void playPrev(){
         musicSrv.playPrev();
-        if(playbackPaused){
-            setController();
-            playbackPaused = false;
-        }
-        controller.show(0);
+
+        this.resetService();
     }
 
     // connect to the service
@@ -332,17 +333,20 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     }
 
     public void songPicked(View view){
-        if(previousSong != null){
-            previousSong.setBackgroundColor(getResources().getColor((R.color.notPlaying)));
-        }
-
-        view.setBackgroundColor(getResources().getColor(R.color.playing));
-
-        previousSong = view;
-
         musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
-
         musicSrv.playSong();
+
+        this.resetService();
+    }
+
+    public void resetService()
+    {
+        int currentSongIndex = musicSrv.getSongPosn();
+
+        songAdt.setCurrentSong(currentSongIndex);
+        songAdt.notifyDataSetChanged();
+
+        songView.smoothScrollToPosition(currentSongIndex);
         if(playbackPaused){
             // Re-initialize the controller
             setController();
@@ -359,7 +363,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
     private void handleShakeEvent(int count) {
         // When a shake has been detected, call to play the next track
-        musicSrv.playNext();
+        this.playNext();
     }
 
     // endregion

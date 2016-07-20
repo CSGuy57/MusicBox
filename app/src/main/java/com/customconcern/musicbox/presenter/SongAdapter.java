@@ -1,4 +1,4 @@
-package com.customconcern.musicbox.model;
+package com.customconcern.musicbox.presenter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,6 +8,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.customconcern.musicbox.R;
+import com.customconcern.musicbox.model.Song;
 
 import java.util.ArrayList;
 
@@ -19,6 +20,7 @@ public class SongAdapter extends android.widget.BaseAdapter {
 
     private ArrayList<Song> songs;
     private LayoutInflater songInf;
+    private int currentSong = -1;
 
     //endregion
 
@@ -26,8 +28,8 @@ public class SongAdapter extends android.widget.BaseAdapter {
     //region Constructor
 
     public SongAdapter(Context c, ArrayList<Song> theSongs){
-        songs=theSongs;
-        songInf=LayoutInflater.from(c);
+        songs = theSongs;
+        songInf = LayoutInflater.from(c);
     }
 
     //endregion
@@ -54,9 +56,14 @@ public class SongAdapter extends android.widget.BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        //map to song layout
-        LinearLayout songLay = (LinearLayout)songInf.inflate
-                (R.layout.song, parent, false);
+        // map to song layout
+        LinearLayout songLay =
+                (LinearLayout)songInf.inflate(R.layout.song, parent, false);
+
+        if (currentSong == position) {
+            songLay.setBackgroundColor(parent.getContext().getResources().getColor(R.color.playing));
+        }
+
         //get title and artist views
         TextView songView = (TextView)songLay.findViewById(R.id.song_title);
         TextView artistView = (TextView)songLay.findViewById(R.id.song_artist);
@@ -68,6 +75,10 @@ public class SongAdapter extends android.widget.BaseAdapter {
         //set position as tag
         songLay.setTag(position);
         return songLay;
+    }
+
+    public void setCurrentSong(int currentSong) {
+        this.currentSong = currentSong;
     }
 
     //endregion
