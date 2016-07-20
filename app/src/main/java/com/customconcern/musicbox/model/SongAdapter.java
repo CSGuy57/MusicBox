@@ -19,7 +19,7 @@ public class SongAdapter extends android.widget.BaseAdapter {
 
     private ArrayList<Song> songs;
     private LayoutInflater songInf;
-    private int currentSong;
+    private int currentSong = -1;
 
     //endregion
 
@@ -55,13 +55,14 @@ public class SongAdapter extends android.widget.BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        //map to song layout
-        LinearLayout songLay = (LinearLayout)songInf.inflate
-                (R.layout.song, parent, false);
+        // map to song layout
+        LinearLayout songLay =
+                (LinearLayout)songInf.inflate(R.layout.song, parent, false);
+
         if (currentSong == position) {
-            songLay.setBackgroundColor(getResources().getColor(R.color.playing));
+            songLay.setBackgroundColor(parent.getContext().getResources().getColor(R.color.playing));
         }
-        
+
         //get title and artist views
         TextView songView = (TextView)songLay.findViewById(R.id.song_title);
         TextView artistView = (TextView)songLay.findViewById(R.id.song_artist);
@@ -75,9 +76,9 @@ public class SongAdapter extends android.widget.BaseAdapter {
         return songLay;
     }
 
-    //endregion
-
     public void setCurrentSong(int currentSong) {
         this.currentSong = currentSong;
     }
+
+    //endregion
 }

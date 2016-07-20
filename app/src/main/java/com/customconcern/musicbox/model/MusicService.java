@@ -45,6 +45,31 @@ public class MusicService extends Service implements
 
     //region Methods
 
+    //region Getters and Setters
+
+    public int getPosn(){
+        return player.getCurrentPosition();
+    }
+
+    public int getDur(){
+        return player.getDuration();
+    }
+
+    public int getSongPosn() {
+        return songPosn;
+    }
+
+    public void setList(ArrayList<Song> theSongs){
+        songs = theSongs;
+    }
+
+    public void setSong(int songIndex){
+        songPosn = songIndex;
+    }
+
+    //endregion
+
+
     //region Overrides
 
     @Override
@@ -125,6 +150,9 @@ public class MusicService extends Service implements
 
     // endregion
 
+
+    //region Player methods
+
     public void initMusicPlayer(){
         //set player properties
         player.setWakeMode(getApplicationContext(),
@@ -136,37 +164,8 @@ public class MusicService extends Service implements
         player.setOnErrorListener(this);
     }
 
-    public int getPosn(){
-        return player.getCurrentPosition();
-    }
-
-    public int getDur(){
-        return player.getDuration();
-    }
-
-    public boolean isPng(){
-        return player.isPlaying();
-    }
-
-    public void pausePlayer(){
-        player.pause();
-    }
-
-    public void seek(int posn){
-        player.seekTo(posn);
-    }
-
     public void go(){
         player.start();
-    }
-
-    public void setList(ArrayList<Song> theSongs){
-        songs = theSongs;
-    }
-
-    public void setSong(int songIndex){
-        songPosn = songIndex;
-
     }
 
     public void playSong(){
@@ -193,12 +192,6 @@ public class MusicService extends Service implements
         player.prepareAsync();
     }
 
-    public class MusicBinder extends Binder {
-        public MusicService getService() {
-            return MusicService.this;
-        }
-    }
-
     public void playPrev(){
         songPosn--;
         if(songPosn < 0) {
@@ -207,7 +200,6 @@ public class MusicService extends Service implements
         playSong();
     }
 
-    //skip to next
     public void playNext(){
         if(shuffle){
             int newSong = songPosn;
@@ -223,10 +215,30 @@ public class MusicService extends Service implements
         playSong();
     }
 
+    public void pausePlayer(){
+        player.pause();
+    }
+
+    public boolean isPng(){
+        return player.isPlaying();
+    }
+
+    public void seek(int posn){
+        player.seekTo(posn);
+    }
+
     public void setShuffle(){
         if(shuffle) shuffle=false;
         else shuffle=true;
     }
+
+    public class MusicBinder extends Binder {
+        public MusicService getService() {
+            return MusicService.this;
+        }
+    }
+
+    //endregion
 
     //endregion
 }
