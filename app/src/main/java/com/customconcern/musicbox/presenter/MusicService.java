@@ -194,7 +194,6 @@ public class MusicService extends Service implements
         }
 
         player.prepareAsync();
-
     }
 
     public void playPrev(){
