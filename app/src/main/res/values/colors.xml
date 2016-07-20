@@ -3,4 +3,6 @@
     <color name="colorPrimary">#FFA000</color>
     <color name="colorPrimaryDark">#1e1e1e</color>
     <color name="colorAccent">#434343</color>
+    <color name="notPlaying">@color/material_grey_800</color>
+    <color name="playing">@color/material_grey_600</color>
 </resources>

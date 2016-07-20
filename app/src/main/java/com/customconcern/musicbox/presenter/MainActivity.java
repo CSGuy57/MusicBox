@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
     private ShakeDetector mShakeDetector;
+    private View previousSong;
 
     // endregion
 
@@ -327,6 +328,14 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     }
 
     public void songPicked(View view){
+        if(previousSong != null){
+            previousSong.setBackgroundColor(getResources().getColor((R.color.notPlaying)));
+        }
+
+        view.setBackgroundColor(getResources().getColor(R.color.playing));
+
+        previousSong = view;
+
         musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
 
         musicSrv.playSong();
@@ -334,7 +343,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             // Re-initialize the controller
             setController();
             playbackPaused = false;
-
         }
         // Show the controller at the beginning
         controller.show(0);
