@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.Cursor;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -20,6 +22,7 @@ import android.widget.MediaController.MediaPlayerControl;
 import com.customconcern.musicbox.R;
 import com.customconcern.musicbox.model.MusicService;
 import com.customconcern.musicbox.model.MusicService.MusicBinder;
+import com.customconcern.musicbox.model.ShakeDetector;
 import com.customconcern.musicbox.model.Song;
 import com.customconcern.musicbox.model.SongAdapter;
 
@@ -37,6 +40,10 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     private boolean musicBound = false;
     private MusicController controller;
     private boolean paused = false, playbackPaused = false;
+    // The following are used for the shake detection
+    private SensorManager mSensorManager;
+    private Sensor mAccelerometer;
+    private ShakeDetector mShakeDetector;
 
     // endregion
 
@@ -68,6 +75,22 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         songView.setAdapter(songAdt);
 
         this.setController();
+
+        // ShakeDetector initialization
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mShakeDetector = new ShakeDetector();
+        mShakeDetector.setOnShakeListener(new ShakeDetector.OnShakeListener() {
+            @Override
+            public void onShake(int count) {
+				/*
+				 * The following method, "handleShakeEvent(count):" is a stub //
+				 * method you would use to setup whatever you want done once the
+				 * device has been shook.
+				 */
+                handleShakeEvent(count);
+            }
+        });
     }
 
     @Override
@@ -78,6 +101,33 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
             startService(playIntent);
         }
+    }
+
+    @Override
+    protected void onPause(){
+        super.onPause();
+        paused = true;
+
+        // Add the following line to unregister the Sensor Manager onPause
+        mSensorManager.unregisterListener(mShakeDetector);
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        if(paused){
+            setController();
+            paused = false;
+        }
+
+        // Add the following line to register the Session Manager Listener onResume
+        mSensorManager.registerListener(mShakeDetector, mAccelerometer,	SensorManager.SENSOR_DELAY_UI);
+    }
+
+    @Override
+    protected void onStop() {
+        controller.hide();
+        super.onStop();
     }
 
     @Override
@@ -170,27 +220,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     }
 
     @Override
-    protected void onPause(){
-        super.onPause();
-        paused=true;
-    }
-
-    @Override
-    protected void onResume(){
-        super.onResume();
-        if(paused){
-            setController();
-            paused = false;
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        controller.hide();
-        super.onStop();
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
@@ -200,7 +229,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     //endregion
 
 
-    //region Music Service Methods
+    // region Music Service Methods
 
     private void setController(){
         // if the controller is null, initialize
@@ -234,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         musicSrv.playNext();
         if(playbackPaused){
             setController();
-            playbackPaused=false;
+            playbackPaused = false;
         }
         controller.show(0);
     }
@@ -243,12 +272,12 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         musicSrv.playPrev();
         if(playbackPaused){
             setController();
-            playbackPaused=false;
+            playbackPaused = false;
         }
         controller.show(0);
     }
 
-    //connect to the service
+    // connect to the service
     private ServiceConnection musicConnection = new ServiceConnection(){
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -298,10 +327,22 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
         musicSrv.playSong();
         if(playbackPaused){
+            // Re-initialize the controller
             setController();
             playbackPaused = false;
         }
+        // Show the controller at the beginning
         controller.show(0);
+    }
+
+    // endregion
+
+
+    // region Shake Methods
+
+    private void handleShakeEvent(int count) {
+        // When a shake has been detected, call to play the next track
+        musicSrv.playNext();
     }
 
     // endregion
