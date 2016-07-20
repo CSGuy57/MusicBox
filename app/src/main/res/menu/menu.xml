@@ -1,16 +1,25 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:musicbox="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_shuffle"
-        android:icon="@drawable/rand"
+        android:id="@+id/action_musicbox"
+        android:icon="@drawable/gift"
         android:orderInCategory="1"
+        musicbox:showAsAction="always"
+        android:title="Shuffle" />
+
+    <item
+        android:id="@+id/action_shuffle"
+        android:icon="@drawable/shuffle"
+        android:orderInCategory="2"
         musicbox:showAsAction="always"
         android:title="Shuffle"/>
 
     <item
         android:id="@+id/action_end"
-        android:icon="@drawable/end"
+        android:icon="@drawable/close"
         android:orderInCategory="2"
         musicbox:showAsAction="always"
         android:title="End"/>
+
+
 </menu>

@@ -134,6 +134,9 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     public boolean onOptionsItemSelected(MenuItem item) {
         //menu item selected
         switch (item.getItemId()) {
+            //case R.id.action_musicbox:
+                //TODO: launch new animated activity here
+
             case R.id.action_shuffle:
                 musicSrv.setShuffle();
                 break;
@@ -325,11 +328,13 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
     public void songPicked(View view){
         musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
+
         musicSrv.playSong();
         if(playbackPaused){
             // Re-initialize the controller
             setController();
             playbackPaused = false;
+
         }
         // Show the controller at the beginning
         controller.show(0);
