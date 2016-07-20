@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
         //menu item selected
         switch (item.getItemId()) {
-            //case R.id.action_musicbox:
+            //case R.id.action_video:
                 //TODO: launch new animated activity here
 
             case R.id.action_shuffle:
