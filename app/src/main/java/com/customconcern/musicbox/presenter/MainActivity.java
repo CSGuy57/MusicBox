@@ -90,6 +90,9 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 handleShakeEvent(count);
             }
         });
+
+        // TODO: Should reference the width of the MediaController
+        songView.setPadding(0,0,0, 185);
     }
 
     @Override
@@ -149,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 }
             case R.id.action_end:
                 stopService(playIntent);
-                musicSrv=null;
+                musicSrv = null;
                 System.exit(0);
                 break;
             case R.id.action_video:
@@ -252,9 +255,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         else
             // invalidate the controller
             controller.invalidate();
-
-        //set the controller up
-        //controller = new MusicController(this);
 
         controller.setPrevNextListeners(new View.OnClickListener() {
             @Override
