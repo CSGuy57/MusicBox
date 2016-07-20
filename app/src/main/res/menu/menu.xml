@@ -5,7 +5,7 @@
         android:icon="@drawable/video"
         android:orderInCategory="1"
         musicbox:showAsAction="always"
-        android:title="Shuffle" />
+        android:title="Video" />
 
     <item
         android:id="@+id/action_shuffle"
