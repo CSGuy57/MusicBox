@@ -16,22 +16,18 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.MediaController.MediaPlayerControl;
 
 import com.customconcern.musicbox.R;
-import com.customconcern.musicbox.model.MusicService;
-import com.customconcern.musicbox.model.MusicService.MusicBinder;
-import com.customconcern.musicbox.model.ShakeDetector;
+import com.customconcern.musicbox.presenter.MusicService.MusicBinder;
 import com.customconcern.musicbox.model.Song;
-import com.customconcern.musicbox.model.SongAdapter;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-public class MainActivity extends AppCompatActivity implements MediaPlayerControl, ListView.OnItemClickListener {
+public class MainActivity extends AppCompatActivity implements MediaPlayerControl {
     // region Fields
 
     private ArrayList<Song> songList;
@@ -45,7 +41,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
     private ShakeDetector mShakeDetector;
-    private int currentSong;
     private SongAdapter songAdt;
     private boolean shuffleStatus;
     // endregion
@@ -277,20 +272,14 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
     private void playNext(){
         musicSrv.playNext();
-        if(playbackPaused){
-            setController();
-            playbackPaused = false;
-        }
-        controller.show(0);
+
+        this.resetService();
     }
 
     private void playPrev(){
         musicSrv.playPrev();
-        if(playbackPaused){
-            setController();
-            playbackPaused = false;
-        }
-        controller.show(0);
+
+        this.resetService();
     }
 
     // connect to the service
@@ -342,6 +331,18 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     public void songPicked(View view){
         musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
         musicSrv.playSong();
+
+        this.resetService();
+    }
+
+    public void resetService()
+    {
+        int currentSongIndex = musicSrv.getSongPosn();
+
+        songAdt.setCurrentSong(currentSongIndex);
+        songAdt.notifyDataSetChanged();
+
+        songView.smoothScrollToPosition(currentSongIndex);
         if(playbackPaused){
             // Re-initialize the controller
             setController();
@@ -358,13 +359,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
     private void handleShakeEvent(int count) {
         // When a shake has been detected, call to play the next track
-        musicSrv.playNext();
-    }
-
-    @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-        songAdt.setCurrentSong(position);
-        songAdt.notifyDataSetChanged();
+        this.playNext();
     }
 
     // endregion

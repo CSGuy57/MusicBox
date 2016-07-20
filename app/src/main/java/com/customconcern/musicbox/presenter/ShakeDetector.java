@@ -1,4 +1,4 @@
-package com.customconcern.musicbox.model;
+package com.customconcern.musicbox.presenter;
 
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
