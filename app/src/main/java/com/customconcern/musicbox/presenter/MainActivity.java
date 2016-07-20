@@ -180,7 +180,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         super.onResume();
         if(paused){
             setController();
-            paused=false;
+            paused = false;
         }
     }
 
@@ -203,8 +203,15 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     //region Music Service Methods
 
     private void setController(){
+        // if the controller is null, initialize
+        if(controller == null)
+            controller = new MusicController(this);
+        else
+            // invalidate the controller
+            controller.invalidate();
+
         //set the controller up
-        controller = new MusicController(this);
+        //controller = new MusicController(this);
 
         controller.setPrevNextListeners(new View.OnClickListener() {
             @Override
@@ -292,7 +299,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         musicSrv.playSong();
         if(playbackPaused){
             setController();
-            playbackPaused=false;
+            playbackPaused = false;
         }
         controller.show(0);
     }
