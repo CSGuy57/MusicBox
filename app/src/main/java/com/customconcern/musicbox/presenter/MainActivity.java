@@ -1,30 +1,42 @@
 package com.customconcern.musicbox.presenter;
 
+import android.content.ComponentName;
 import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.ListView;
 
 import com.customconcern.musicbox.R;
+import com.customconcern.musicbox.model.MusicService;
 import com.customconcern.musicbox.model.Song;
 import com.customconcern.musicbox.model.SongAdapter;
+import com.customconcern.musicbox.model.MusicService.MusicBinder;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
 public class MainActivity extends AppCompatActivity {
-    //region Fields
+    // region Fields
 
     private ArrayList<Song> songList;
     private ListView songView;
+    private MusicService musicSrv;
+    private Intent playIntent;
+    private boolean musicBound=false;
 
-    //endregion
+    // endregion
 
 
-    //region Methods
+    // region Methods
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
         songView = (ListView)findViewById(R.id.song_list);
 
         // Instantiate the list
-        songList = new ArrayList<Song>();
+        songList = new ArrayList<>();
 
         getSongList();
 
@@ -48,6 +60,34 @@ public class MainActivity extends AppCompatActivity {
         SongAdapter songAdt = new SongAdapter(this, songList);
         songView.setAdapter(songAdt);
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(playIntent==null){
+            playIntent = new Intent(this, MusicService.class);
+            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
+            startService(playIntent);
+        }
+    }
+
+    //connect to the service
+    private ServiceConnection musicConnection = new ServiceConnection(){
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MusicBinder binder = (MusicBinder)service;
+            //get service
+            musicSrv = binder.getService();
+            //pass list
+            musicSrv.setList(songList);
+            musicBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            musicBound = false;
+        }
+    };
 
     public void getSongList() {
         //retrieve song info
@@ -71,7 +111,36 @@ public class MainActivity extends AppCompatActivity {
                 songList.add(new Song(thisId, thisTitle, thisArtist));
             }
             while (musicCursor.moveToNext());
+            musicCursor.close();
         }
+    }
+
+    public void songPicked(View view){
+        musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
+        musicSrv.playSong();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        //menu item selected
+        switch (item.getItemId()) {
+            case R.id.action_shuffle:
+                //shuffle
+                break;
+            case R.id.action_end:
+                stopService(playIntent);
+                musicSrv=null;
+                System.exit(0);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy() {
+        stopService(playIntent);
+        musicSrv=null;
+        super.onDestroy();
     }
 
     //endregion
