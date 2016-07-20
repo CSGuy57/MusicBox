@@ -11,6 +11,7 @@ import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,8 +21,8 @@ import android.widget.ListView;
 import android.widget.MediaController.MediaPlayerControl;
 
 import com.customconcern.musicbox.R;
-import com.customconcern.musicbox.presenter.MusicService.MusicBinder;
 import com.customconcern.musicbox.model.Song;
+import com.customconcern.musicbox.presenter.MusicService.MusicBinder;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -130,8 +131,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
-
         //menu item selected
         switch (item.getItemId()) {
             //case R.id.action_video:
@@ -310,7 +309,12 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         //retrieve song info
         ContentResolver musicResolver = getContentResolver();
         Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
+        Cursor musicCursor = musicResolver.query(
+                musicUri,
+                null,
+                MediaStore.Audio.Media.DATA + " like ? ",
+                new String[] {"%/Music/%"},
+                null);
 
         if(musicCursor!=null && musicCursor.moveToFirst()){
             //get columns

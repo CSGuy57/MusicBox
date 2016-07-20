@@ -18,6 +18,7 @@ import com.customconcern.musicbox.model.Song;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Stack;
 
 /**
  * Created by Daniel Lande on 7/19/2016.
@@ -38,6 +39,7 @@ public class MusicService extends Service implements
     private static final int NOTIFY_ID=1;
     private boolean shuffle = false;
     private Random rand;
+    private Stack<Integer> songHistory;
 
     //endregion
 
@@ -83,6 +85,8 @@ public class MusicService extends Service implements
         player = new MediaPlayer();
 
         rand = new Random();
+
+        songHistory = new Stack<>();
 
         initMusicPlayer();
     }
@@ -170,6 +174,8 @@ public class MusicService extends Service implements
     public void playSong(){
         player.reset();
 
+        songHistory.push(songPosn);
+
         //get song
         Song playSong = songs.get(songPosn);
         songTitle = playSong.getTitle();
@@ -181,21 +187,37 @@ public class MusicService extends Service implements
                 android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                 currSong);
 
-        try{
+        try {
             player.setDataSource(getApplicationContext(), trackUri);
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             Log.e("MUSIC SERVICE", "Error setting data source", e);
         }
 
         player.prepareAsync();
+
     }
 
     public void playPrev(){
-        songPosn--;
-        if(songPosn < 0) {
-            songPosn = songs.size()-1;
+        // If the songs are being shuffled and their is a song history
+        /*if(shuffle && songHistory.size() > 0)
+        {
+            songPosn = songHistory.pop();
+        } else {
+            songPosn--;
+            if (songPosn < 0) {
+                songPosn = songs.size() - 1;
+            }
+        }*/
+        if(shuffle && songHistory.size() > 1) {
+            int currentSong = songHistory.pop();
+            songPosn = songHistory.pop();
+        } else {
+            songPosn--;
+            if (songPosn < 0) {
+                songPosn = songs.size() - 1;
+            }
         }
+
         playSong();
     }
 
@@ -227,8 +249,13 @@ public class MusicService extends Service implements
     }
 
     public void setShuffle(){
-        if(shuffle) shuffle=false;
-        else shuffle=true;
+        songHistory.clear();
+
+        if(shuffle) {
+            shuffle=false;
+        } else {
+            shuffle=true;
+        }
     }
 
     public class MusicBinder extends Binder {
