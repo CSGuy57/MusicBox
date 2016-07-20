@@ -1,4 +1,4 @@
-package com.customconcern.musicbox.model;
+package com.customconcern.musicbox.presenter;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -14,8 +14,7 @@ import android.os.PowerManager;
 import android.util.Log;
 
 import com.customconcern.musicbox.R;
-import com.customconcern.musicbox.presenter.MainActivity;
-import com.customconcern.musicbox.presenter.MusicController;
+import com.customconcern.musicbox.model.Song;
 
 import java.util.ArrayList;
 import java.util.Random;

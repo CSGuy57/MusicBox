@@ -1,4 +1,4 @@
-package com.customconcern.musicbox.model;
+package com.customconcern.musicbox.presenter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,6 +8,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.customconcern.musicbox.R;
+import com.customconcern.musicbox.model.Song;
 
 import java.util.ArrayList;
 

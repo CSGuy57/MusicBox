@@ -24,6 +24,6 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <service android:name="com.customconcern.musicbox.model.MusicService"/>
+        <service android:name=".presenter.MusicService"/>
     </application>
 </manifest>

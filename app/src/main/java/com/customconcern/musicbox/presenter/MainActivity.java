@@ -20,11 +20,8 @@ import android.widget.ListView;
 import android.widget.MediaController.MediaPlayerControl;
 
 import com.customconcern.musicbox.R;
-import com.customconcern.musicbox.model.MusicService;
-import com.customconcern.musicbox.model.MusicService.MusicBinder;
-import com.customconcern.musicbox.model.ShakeDetector;
+import com.customconcern.musicbox.presenter.MusicService.MusicBinder;
 import com.customconcern.musicbox.model.Song;
-import com.customconcern.musicbox.model.SongAdapter;
 
 import java.util.ArrayList;
 import java.util.Collections;
