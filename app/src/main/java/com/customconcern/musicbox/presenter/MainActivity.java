@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.MediaController.MediaPlayerControl;
 
@@ -30,7 +31,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-public class MainActivity extends AppCompatActivity implements MediaPlayerControl {
+public class MainActivity extends AppCompatActivity implements MediaPlayerControl, ListView.OnItemClickListener {
     // region Fields
 
     private ArrayList<Song> songList;
@@ -44,8 +45,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
     private ShakeDetector mShakeDetector;
-    private View previousSong;
-
+    private int currentSong;
+    private SongAdapter songAdt;
     // endregion
 
 
@@ -72,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             }
         });
 
-        SongAdapter songAdt = new SongAdapter(this, songList);
+        songAdt = new SongAdapter(this, songList);
         songView.setAdapter(songAdt);
 
         this.setController();
@@ -328,16 +329,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     }
 
     public void songPicked(View view){
-        if(previousSong != null){
-            previousSong.setBackgroundColor(getResources().getColor((R.color.notPlaying)));
-        }
-
-        view.setBackgroundColor(getResources().getColor(R.color.playing));
-
-        previousSong = view;
-
         musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
-
         musicSrv.playSong();
         if(playbackPaused){
             // Re-initialize the controller
@@ -358,7 +350,16 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         musicSrv.playNext();
     }
 
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+        songAdt.setCurrentSong(position);
+        songAdt.notifyDataSetChanged();
+    }
+
     // endregion
 
     // endregion
 }
+
+//if position == current position
+//set background color to this
