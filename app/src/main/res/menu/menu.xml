@@ -2,7 +2,7 @@
       xmlns:musicbox="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_musicbox"
-        android:icon="@drawable/gift"
+        android:icon="@drawable/video"
         android:orderInCategory="1"
         musicbox:showAsAction="always"
         android:title="Shuffle" />
