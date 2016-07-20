@@ -10,33 +10,40 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.MediaController.MediaPlayerControl;
 
 import com.customconcern.musicbox.R;
 import com.customconcern.musicbox.model.MusicService;
+import com.customconcern.musicbox.model.MusicService.MusicBinder;
 import com.customconcern.musicbox.model.Song;
 import com.customconcern.musicbox.model.SongAdapter;
-import com.customconcern.musicbox.model.MusicService.MusicBinder;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MediaPlayerControl {
     // region Fields
 
     private ArrayList<Song> songList;
     private ListView songView;
     private MusicService musicSrv;
     private Intent playIntent;
-    private boolean musicBound=false;
+    private boolean musicBound = false;
+    private MusicController controller;
+    private boolean paused = false, playbackPaused = false;
 
     // endregion
 
 
     // region Methods
+
+    // region Overrides
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
 
         SongAdapter songAdt = new SongAdapter(this, songList);
         songView.setAdapter(songAdt);
+
+        this.setController();
     }
 
     @Override
@@ -71,6 +80,167 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        //menu item selected
+        switch (item.getItemId()) {
+            case R.id.action_shuffle:
+                musicSrv.setShuffle();
+                break;
+            case R.id.action_end:
+                stopService(playIntent);
+                musicSrv=null;
+                System.exit(0);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy() {
+        stopService(playIntent);
+        musicSrv = null;
+        super.onDestroy();
+    }
+
+    @Override
+    public void start() {
+        musicSrv.go();
+    }
+
+    @Override
+    public void pause() {
+        playbackPaused = true;
+        musicSrv.pausePlayer();
+    }
+
+    @Override
+    public int getDuration() {
+        if(musicSrv != null && musicBound && musicSrv.isPng()) {
+            return musicSrv.getDur();
+        } else {
+            return 0;
+        }
+    }
+
+    @Override
+    public int getCurrentPosition() {
+        if(musicSrv!=null && musicBound && musicSrv.isPng()){
+            return musicSrv.getPosn();
+        } else {
+            return 0;
+        }
+    }
+
+    @Override
+    public void seekTo(int pos) {
+        musicSrv.seek(pos);
+    }
+
+    @Override
+    public boolean isPlaying() {
+        if(musicSrv != null && musicBound)
+            return musicSrv.isPng();
+        return false;
+    }
+
+    @Override
+    public int getBufferPercentage() {
+        return 0;
+    }
+
+    @Override
+    public boolean canPause() {
+        return true;
+    }
+
+    @Override
+    public boolean canSeekBackward() {
+        return true;
+    }
+
+    @Override
+    public boolean canSeekForward() {
+        return true;
+    }
+
+    @Override
+    public int getAudioSessionId() {
+        return 0;
+    }
+
+    @Override
+    protected void onPause(){
+        super.onPause();
+        paused=true;
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        if(paused){
+            setController();
+            paused=false;
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        controller.hide();
+        super.onStop();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    //endregion
+
+
+    //region Music Service Methods
+
+    private void setController(){
+        //set the controller up
+        controller = new MusicController(this);
+
+        controller.setPrevNextListeners(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playNext();
+            }
+        }, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playPrev();
+            }
+        });
+
+        controller.setMediaPlayer(this);
+        controller.setAnchorView(findViewById(R.id.song_list));
+        controller.setEnabled(true);
+    }
+
+    private void playNext(){
+        musicSrv.playNext();
+        if(playbackPaused){
+            setController();
+            playbackPaused=false;
+        }
+        controller.show(0);
+    }
+
+    private void playPrev(){
+        musicSrv.playPrev();
+        if(playbackPaused){
+            setController();
+            playbackPaused=false;
+        }
+        controller.show(0);
+    }
+
     //connect to the service
     private ServiceConnection musicConnection = new ServiceConnection(){
         @Override
@@ -81,6 +251,8 @@ public class MainActivity extends AppCompatActivity {
             //pass list
             musicSrv.setList(songList);
             musicBound = true;
+
+            musicSrv.setController(controller);
         }
 
         @Override
@@ -118,30 +290,14 @@ public class MainActivity extends AppCompatActivity {
     public void songPicked(View view){
         musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
         musicSrv.playSong();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        //menu item selected
-        switch (item.getItemId()) {
-            case R.id.action_shuffle:
-                //shuffle
-                break;
-            case R.id.action_end:
-                stopService(playIntent);
-                musicSrv=null;
-                System.exit(0);
-                break;
+        if(playbackPaused){
+            setController();
+            playbackPaused=false;
         }
-        return super.onOptionsItemSelected(item);
+        controller.show(0);
     }
 
-    @Override
-    protected void onDestroy() {
-        stopService(playIntent);
-        musicSrv=null;
-        super.onDestroy();
-    }
+    // endregion
 
-    //endregion
+    // endregion
 }
