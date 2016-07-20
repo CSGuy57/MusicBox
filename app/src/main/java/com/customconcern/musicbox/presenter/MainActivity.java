@@ -146,6 +146,10 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 musicSrv=null;
                 System.exit(0);
                 break;
+            case R.id.action_video:
+                startActivity(new Intent(getApplicationContext(), GifActivity.class));
+
+                break;
         }
         return super.onOptionsItemSelected(item);
     }

@@ -24,6 +24,9 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity android:name=".presenter.GifActivity" android:label="GifPlayer"/>
+
         <service android:name="com.customconcern.musicbox.model.MusicService"/>
     </application>
+    <uses-permission android:name="android.permission.INTERNET"/>
 </manifest>

@@ -1,11 +1,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:musicbox="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_musicbox"
-        android:icon="@drawable/gift"
+        android:id="@+id/action_video"
+        android:icon="@drawable/video"
         android:orderInCategory="1"
         musicbox:showAsAction="always"
-        android:title="Shuffle" />
+        android:title="Video" />
 
     <item
         android:id="@+id/action_shuffle"
